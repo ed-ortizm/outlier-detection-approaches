@@ -1,2 +1,3 @@
-# outlier_detection_approaches
+# Approaches for Outlier Detection
+
 Illustrations of the broad concepts for outlier detection.
