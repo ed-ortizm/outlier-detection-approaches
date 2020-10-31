@@ -6,105 +6,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
 from sklearn.datasets import make_blobs
-from sklearn.neighbors import NearestNeighbors
 
-from lib_mg2020 import plt_data
 
-np.random.seed(0)
-
-# https://en.wikipedia.org/wiki/Lp_space#The_p-norm_in_finite_dimensions
-
-def lp(x, y, p=2):
-
-    d = np.sum((np.abs(x-y))**p)**(1/p)
-    return d
-
-def nns(data, nns=2, p=2):
-
-    NNs = NearestNeighbors(n_neighbors=nns, algorithm='auto', metric=lp, metric_params={'p': p})
-    NNs_data = NNs.fit(data)
-    dd, idxx = NNs_data.kneighbors(X)
-
-    return dd[:, 1:], idxx[:, 1:]
-
-path = './pics_test_mg2020'
+from lib_dist_app import plt_data, nns
 
 ti = time.time()
+
+np.random.seed(0)
 
 ## intuition data
 # inliers
 
-n_samples = np.array([100, 100, 100])
-# n_samples = np.array([1_000, 2_000, 600])
-centers = np.array([[2, 2], [3, 3], [2.5, 1]])
-cluster_std = [1, 0.1, 1]
-# cluster_std = [0.1, 0.1, 0.1]
-X, y= make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=1)
-
-data = X
-print(f'data shape: {data.shape}')
-
-# outliers
-
-n_outliers = 2
-ox1 = 1.3 + np.random.random(size= n_outliers)*0.3
-oy1 = 0.5 + np.random.random(size= n_outliers)*3
-data = np.vstack((data, np.vstack((ox1, oy1)).T))
-print(f'data shape: {data.shape}')
-
-n_outliers = 6
-ox2 = 1.6 + np.random.random(size= n_outliers)*0.55
-oy2 = 0.5 + np.random.random(size= n_outliers)
-data = np.vstack((data, np.vstack((ox2, oy2)).T))
-print(f'data shape: {data.shape}')
-
-n_outliers = 4
-ox3 = 1.6 + np.random.random(size= n_outliers)*0.8
-oy3 = 2.6 + np.random.random(size= n_outliers)*0.9
-data = np.vstack((data, np.vstack((ox3, oy3)).T))
-print(f'data shape: {data.shape}')
-
-n_outliers = 2
-ox4 = 2.2 + np.random.random(size= n_outliers)*1.2
-oy4 = 0.5 + np.random.random(size= n_outliers)*0.05
-data = np.vstack((data, np.vstack((ox4, oy4)).T))
-print(f'data shape: {data.shape}')
-
-
-n_outliers = 5
-ox5 = 2.4 + np.random.random(size= n_outliers)*0.2
-oy5 = 1.5 + np.random.random(size= n_outliers)*2
-data = np.vstack((data, np.vstack((ox5, oy5)).T))
-print(f'data shape: {data.shape}')
-
-n_outliers = 5
-ox6 = 2.6 + np.random.random(size= n_outliers)*0.8
-oy6 = 1.5 + np.random.random(size= n_outliers)
-data = np.vstack((data, np.vstack((ox6, oy6)).T))
-print(f'data shape: {data.shape}')
-
-n_outliers = 2
-ox7 = 3 + np.random.random(size= n_outliers)*0.4
-oy7 = 0.5 + np.random.random(size= n_outliers)
-data = np.vstack((data, np.vstack((ox7, oy7)).T))
-print(f'data shape: {data.shape}')
-
-# cluster outlier
-sigma = 0.05
-size = 12
-ox0 = np.random.normal(loc=1.6, scale=sigma, size=size)
-oy0 = np.random.normal(loc=3.0, scale=sigma, size=size)
-data = np.vstack((data, np.vstack((ox0, oy0)).T))
-print(f'data shape: {data.shape}')
-
-
+n_samples = [100, 100, 100, 100, 150, 51]
+centers = [ [5, 5], [5, 9], [9, 5], [5, 1], [2, 5], [-5, -2] ]
+cluster_std = [0.25, 0.5, 1, 1.5, 3, 0.25]
+data, y= make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=1)
 
 ##NNs
-dd, idxx = nns(data=data, nns=data.shape[0], p=2)
+p = 2
+n_neighbors = data.shape[0]
 
-np.save('distances_p_2.npy', dd)
+dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p)
 
-plt_data(data)
+np.save(f'distances_p_{p}.npy', dd)
+
+rr = [1, 50, 100, 200, 400, 600]
+
+for r in rr:
+
+    fig, ax = plt.subplots(figsize=(10,5))
+
+    d_r = np.mean(dd[:, :r], axis=1)
+    d_r /= np.max(d_r)
+
+    ax.hist(d_r, bins=100)
+    plt.tight_layout()
+
+    fig.savefig(f'nns_{r}_outlier_score.png')
+
+    plt.close()
+
+
+# plt_data(data=data, fname='data_distribution', face_color = True)
 #
 # fig, ax = plt.subplots(figsize=(12, 8))
 # dd_sorted = np.sort(dd)
