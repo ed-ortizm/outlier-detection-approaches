@@ -18,59 +18,66 @@ N = 601
 nn = [50]
 pp = [i/10 for i in range(1,11)]+[2, 3]
 
-n_proc = 20
-n_features = 50
-processes = np.empty((n_proc, n_features))
-
-
-for proc in processes:
-
-    proc[:] = np.random.normal(loc=np.random.randint(100), size=n_features)
-
+# n_proc = 20
+# n_features = 50
+# processes = np.empty((n_proc, n_features))
+#
+#
+# for proc in processes:
+#
+#     proc[:] = np.random.normal(loc=np.random.randint(100), size=n_features)
+#
+# # plt.figure()
+# # for point in processes:
+# #     plt.plot(point)
+# # plt.show()
+# # plt.close()
+# #
+#
+# data = np.empty((N, n_features))
+#
 # plt.figure()
-# for point in processes:
+# for point in data:
+#     i = np.random.randint(low=15, high=20)
+#     point[:] = np.sum(processes[:i, :], axis=0)
 #     plt.plot(point)
+#
 # plt.show()
 # plt.close()
-#
-
-data = np.empty((N, n_features))
-
-plt.figure()
-for point in data:
-    i = np.random.randint(low=15, high=20)
-    point[:] = np.sum(processes[:i, :], axis=0)
-    plt.plot(point)
-
-plt.show()
-plt.close()
 
 ## outliers
+## wave data
+
+data = np.genfromtxt('wave_data.csv', delimiter=',', dtype='float32')
+
+
+
+print(np.count_nonzero(np.isnan(data)))
 
 ##NNs
 
 n_neighbors = data.shape[0]
 
-for p in pp:
-
-    dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p)
-
-    rr = [1]#[1, 50, 100, 200, 400, 600]
-
-    for r in rr:
-
-        fig, ax = plt.subplots(figsize=(10,5))
-
-        d_r = np.mean(dd[:, :r], axis=1)
-        print(np.count_nonzero(np.isnan(d_r)),np.max(d_r))
-        # d_r /= np.max(d_r)
-
-        ax.hist(d_r, bins=100)
-        plt.tight_layout()
-
-        fig.savefig(f'./gaussians/nns_{r}_n_{n_features}_p_{p}_outlier_score.png')
-
-        plt.close()
+# for p in pp:
+#
+#     dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p)
+#
+#     rr = [1]#[1, 50, 100, 200, 400, 600]
+#
+#     for r in rr:
+#
+#         fig, ax = plt.subplots(figsize=(10,5))
+#
+#         d_r = np.mean(dd[:, :r], axis=1)
+#         # print(np.count_nonzero(np.isnan(d_r)),np.max(d_r))
+#         d_r /= np.max(d_r)
+#
+#         ax.hist(d_r, bins=100)
+#         plt.tight_layout()
+#
+#         fig.savefig(f'./gaussians/nns_{r}_n_{n_features}_p_{p}_outlier_score.png')
+#
+#         plt.close()
 
 ## intuition data
 # inliers
