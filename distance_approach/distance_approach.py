@@ -16,7 +16,7 @@ np.random.seed(0)
 
 N = 601
 nn = [50]
-pp = [i/10 for i in range(1,11)]+[2, 3]
+pp = [2*i/10 for i in range(1,5)]+[2, 3]
 
 # n_proc = 20
 # n_features = 50
@@ -46,23 +46,23 @@ pp = [i/10 for i in range(1,11)]+[2, 3]
 # plt.close()
 
 ## outliers
-## wave data
-
-data = np.genfromtxt('wave_data.csv', delimiter=',', dtype='float32')
-
-
-
-print(np.count_nonzero(np.isnan(data)))
+# ## wave data
+#
+# data = np.genfromtxt('wave_data.csv', delimiter=',', dtype='float32', filling_values=0.0)
+#
+#
+#
+# print(np.count_nonzero(np.isnan(data)))
 
 ##NNs
 
-n_neighbors = data.shape[0]
-
+# n_neighbors = data.shape[0]
+#
 # for p in pp:
 #
-#     dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p)
-#
-#     rr = [1]#[1, 50, 100, 200, 400, 600]
+#     dd, idxx = nns(data=data[:], n_neighbors=n_neighbors, p=p)
+#     print(dd.shape)
+#     rr = [10]#[1, 50, 100, 200, 400, 600]
 #
 #     for r in rr:
 #
@@ -75,44 +75,49 @@ n_neighbors = data.shape[0]
 #         ax.hist(d_r, bins=100)
 #         plt.tight_layout()
 #
-#         fig.savefig(f'./gaussians/nns_{r}_n_{n_features}_p_{p}_outlier_score.png')
+#         fig.savefig(f'./gaussians/nns_{r}_n_{data.shape[1]}_p_{p}_outlier_score.png')
 #
 #         plt.close()
 
 ## intuition data
 # inliers
 
-# n_samples = [100, 100, 100, 100, 150, 51]
-# centers = [ [5, 5], [5, 9], [9, 5], [5, 1], [2, 5], [-5, -2] ]
-# cluster_std = [0.25, 0.5, 1, 1.5, 3, 0.25]
-# data, y= make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=1)
-#
-# ##NNs
-# p = 2
-# n_neighbors = data.shape[0]
-#
-# dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p)
-#
-# # np.save(f'distances_p_{p}.npy', dd)
-#
-# rr = [1, 50, 100, 200, 400, 600]
-#
-# for r in rr:
-#
-#     fig, ax = plt.subplots(figsize=(10,5))
-#
-#     d_r = np.mean(dd[:, :r], axis=1)
-#     d_r /= np.max(d_r)
-#
-#     ax.hist(d_r, bins=100)
-#     plt.tight_layout()
-#
-#     fig.savefig(f'./intuition/nns_{r}_p_{p}_o_score.png')
-#
-#     plt.close()
+n_samples = [100, 100, 100, 100, 150, 51]
+# nn_samples = [10*i for i in n_samples]
+# nn_samples[-1] -= -9
+centers = [ [5, 5], [5, 9], [9, 5], [5, 1], [2, 5], [-5, -2] ]
+cluster_std = [0.25, 0.5, 1, 1.5, 3, 0.25]
+data, y= make_blobs(n_samples=n_samples, centers=centers, cluster_std=cluster_std, random_state=1)
+plt_data(data=data, fname='data_distribution', face_color = False)
+# data, y= make_blobs(n_samples=nn_samples, centers=centers, cluster_std=cluster_std, random_state=1)
+# plt_data(data=data, fname='data_distribution', alpha=0.05, face_color = True)
 
 
-# plt_data(data=data, fname='data_distribution', face_color = True)
+##NNs
+p = 2
+n_neighbors = data.shape[0]
+
+dd, idxx = nns(data=data, n_neighbors=n_neighbors, p=p, n_jobs=None)
+
+# np.save(f'distances_p_{p}.npy', dd)
+
+rr = [1, 50, 100, 200, 400, 600]
+# rr = [1, 500, 1000, 2000, 4000, 6000]
+for r in rr:
+
+    fig, ax = plt.subplots(figsize=(10,5))
+
+    d_r = np.mean(dd[:, :r], axis=1)
+    d_r /= np.max(d_r)
+
+    ax.hist(d_r, bins=100)
+    plt.tight_layout()
+
+    fig.savefig(f'./intuition/nns_{r}_p_{p}_o_score.png')
+
+    plt.close()
+
+
 #
 # fig, ax = plt.subplots(figsize=(12, 8))
 # dd_sorted = np.sort(dd)
